@@ -46,9 +46,8 @@ SRCS=	MoeForwardFilter.cpp \
 	MoeMascot.cpp \
 	MoeMascotManager.cpp \
 	MoeAppUtils.cpp \
-	MoeJsonHelper.cpp \
 	MoeBubbleWindow.cpp \
-	MoeClaudeClient.cpp \
+	MoeAIClient.cpp \
 	MoeSettingsWindow.cpp \
 	MoeApplication.cpp
 
@@ -71,7 +70,7 @@ RDEFS= Moe-AI.rdef
 #		naming scheme you need to specify the path to the library
 #		and it's name
 #		library: my_lib.a entry: my_lib.a or path/my_lib.a
-LIBS= be tracker translation z localestub shared network bnetapi netservices2 $(STDCPPLIBS)
+LIBS= be tracker translation z localestub shared network bnetapi netservices2 ai_api $(STDCPPLIBS)
 
 #	specify additional paths to directories following the standard
 #	libXXX.so or libXXX.a naming scheme.  You can specify full paths
@@ -91,7 +90,7 @@ SYSTEM_INCLUDE_PATHS = /system/develop/headers/private/interface \
 #	additional paths to look for local headers
 #	thes use the form: #include "header"
 #	source file directories are automatically included
-LOCAL_INCLUDE_PATHS = 
+LOCAL_INCLUDE_PATHS = ../../haiku/headers/os
 
 #	specify the level of optimization that you desire
 #	NONE, SOME, FULL

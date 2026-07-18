@@ -42,7 +42,7 @@
 #include "MoeUtils.h"
 #include "MoeProperty.h"
 #include "MoeSettingsWindow.h"
-#include "MoeClaudeClient.h"
+#include "MoeAIClient.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SettingsWindow"
@@ -68,18 +68,6 @@ enum {
   kMsgVoiceSelect    = 'SvSl',
   kMsgSpeedSelect    = 'SsSl',
 };
-
-struct ModelInfo {
-  const char* label;
-  const char* id;
-};
-
-static const ModelInfo kModels[] = {
-  { "Claude Sonnet 4", "claude-sonnet-4-20250514" },
-  { "Claude Opus 4",   "claude-opus-4-20250514" },
-  { "Claude Haiku 3.5","claude-haiku-4-5-20251001" },
-};
-static const int32 kModelCount = 3;
 
 static const char* kSpeedLabels[] = {
   "Fastest", "Fast", "Slow", "Very Slow", "Slowest"
@@ -242,23 +230,9 @@ MoeSettingsWindow::MoeSettingsWindow(void)
   BView* aiTab = new BView(B_TRANSLATE("AI"), B_WILL_DRAW);
   aiTab->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 
-  fApiKeyControl = new BTextControl(B_TRANSLATE("API Key:"), "",
-                                    NULL);
-  fApiKeyControl->TextView()->HideTyping(true);
-  fApiKeyControl->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
-
-  // Model popup
-  BPopUpMenu* modelMenu = new BPopUpMenu("");
-  for (int32 i = 0; i < kModelCount; i++) {
-    BMessage* msg = new BMessage(kMsgModelSelect);
-    msg->AddString("model", kModels[i].id);
-    modelMenu->AddItem(new BMenuItem(kModels[i].label, msg));
-  }
-  fModelField = new BMenuField(B_TRANSLATE("Model:"), modelMenu);
-
-  fPippoUrlControl = new BTextControl(B_TRANSLATE("MCP URL:"),
-                                      "http://127.0.0.1:2607/mcp",
-                                      NULL);
+  BStringView* noteView = new BStringView("note_label",
+    B_TRANSLATE("Note: AI plugins, models and API keys are configured globally in System Preferences (AI panel)."));
+  noteView->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
 
   fSystemPromptView = new BTextView("system_prompt");
   fSystemPromptView->SetWordWrap(true);
@@ -273,11 +247,9 @@ MoeSettingsWindow::MoeSettingsWindow(void)
 
   BLayoutBuilder::Group<>(aiTab, B_VERTICAL, 4)
     .SetInsets(B_USE_DEFAULT_SPACING)
-    .Add(fApiKeyControl)
-    .Add(fModelField)
-    .Add(fPippoUrlControl)
+    .Add(noteView)
     .Add(new BStringView("prompt_label",
-                          B_TRANSLATE("System prompt:")))
+                          B_TRANSLATE("Mascot System Prompt (Personality):")))
     .Add(promptScroll, 5)
     .Add(saveAIButton)
   .End();
@@ -659,62 +631,7 @@ _ReadConfigString(const char* filename, const char* defaultVal)
 void
 MoeSettingsWindow::_LoadSettings(void)
 {
-  // Load API key
-  BString path(MOE_CONFIG_DIRECTORY);
-  path << "claude_api_key";
-  BFile file(path.String(), B_READ_ONLY);
-  if (file.InitCheck() == B_OK) {
-    off_t size;
-    file.GetSize(&size);
-    if (size > 0 && size < 256) {
-      char buf[257];
-      file.Read(buf, size);
-      buf[size] = '\0';
-      BString key(buf);
-      key.Trim();
-      fApiKeyControl->SetText(key.String());
-    }
-  }
-
-  // Load model
-  path.SetTo(MOE_CONFIG_DIRECTORY);
-  path << "claude_model";
-  BFile modelFile(path.String(), B_READ_ONLY);
-  BString currentModel("claude-sonnet-4-20250514");
-  if (modelFile.InitCheck() == B_OK) {
-    off_t size;
-    modelFile.GetSize(&size);
-    if (size > 0 && size < 128) {
-      char buf[129];
-      modelFile.Read(buf, size);
-      buf[size] = '\0';
-      currentModel.SetTo(buf);
-      currentModel.Trim();
-    }
-  }
-  BMenu* modelMenu = fModelField->Menu();
-  for (int32 i = 0; i < kModelCount; i++) {
-    BMenuItem* item = modelMenu->ItemAt(i);
-    if (item)
-      item->SetMarked(currentModel == kModels[i].id);
-  }
-
-  // Load Pippo URL
-  path.SetTo(MOE_CONFIG_DIRECTORY);
-  path << "pippo_url";
-  BFile urlFile(path.String(), B_READ_ONLY);
-  if (urlFile.InitCheck() == B_OK) {
-    off_t size;
-    urlFile.GetSize(&size);
-    if (size > 0 && size < 512) {
-      char buf[513];
-      urlFile.Read(buf, size);
-      buf[size] = '\0';
-      BString url(buf);
-      url.Trim();
-      fPippoUrlControl->SetText(url.String());
-    }
-  }
+  BString path;
 
   // Load system prompt
   path.SetTo(MOE_CONFIG_DIRECTORY);
@@ -811,23 +728,11 @@ _WriteConfigFile(const char* filename, const char* content)
 void
 MoeSettingsWindow::_SaveAISettings(void)
 {
-  _WriteConfigFile("claude_api_key", fApiKeyControl->Text());
-
-  BMenuItem* modelItem = fModelField->Menu()->FindMarked();
-  if (modelItem) {
-    BMessage* msg = modelItem->Message();
-    const char* model;
-    if (msg && msg->FindString("model", &model) == B_OK)
-      _WriteConfigFile("claude_model", model);
-  }
-
-  _WriteConfigFile("pippo_url", fPippoUrlControl->Text());
-
   const char* prompt = fSystemPromptView->Text();
   if (prompt && prompt[0] != '\0')
     _WriteConfigFile("system_prompt", prompt);
 
-  MoeClaudeClient::Client()->ReloadSettings();
+  MoeAIClient::Client()->ReloadSettings();
 }
 
 

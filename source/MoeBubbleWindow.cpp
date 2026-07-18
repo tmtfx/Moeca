@@ -28,7 +28,7 @@
 #include <Catalog.h>
 #include "MoeDefs.h"
 #include "MoeBubbleWindow.h"
-#include "MoeClaudeClient.h"
+#include "MoeAIClient.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "BubbleWindow"
@@ -658,8 +658,8 @@ MoeBubbleWindow::MessageReceived(BMessage* msg)
 
       SetBusy(true);
 
-      MoeClaudeClient::Client()->SendChat(userText.String(),
-                                          BMessenger(this));
+      MoeAIClient::Client()->SendChat(userText.String(),
+                                      BMessenger(this));
       break;
     }
 
@@ -692,7 +692,7 @@ MoeBubbleWindow::MessageReceived(BMessage* msg)
     case MOE_CHAT_CLEAR:
     {
       _ClearResponse();
-      MoeClaudeClient::Client()->ClearHistory();
+      MoeAIClient::Client()->ClearHistory();
       break;
     }
 

@@ -49,7 +49,7 @@
 #include "MoeAppUtils.h"
 #include "MoeActiveWindowWatcher.h"
 #include "MoeBubbleWindow.h"
-#include "MoeClaudeClient.h"
+#include "MoeAIClient.h"
 #include "MoeSettingsWindow.h"
 
 #undef B_TRANSLATION_CONTEXT
@@ -280,7 +280,7 @@ MoeApplication::AboutRequested(void)
   about->AddExtraInfo(B_TRANSLATE("Moe - AI Desktop Mascot for Haiku"));
   about->AddDescription(B_TRANSLATE(
   	"Moe is a desktop mascot that sits on your active window.\n"
-  	"Double-click to chat with Moe, powered by Claude AI.\n"));
+  	"Double-click to chat with Moe, powered by Haiku AI.\n"));
   about->Show();
 }
 

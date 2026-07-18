@@ -10,7 +10,7 @@ resource app_version {
 
 	short_info = "Moe-AI - AI Desktop Mascot",
 	long_info =
-		"Moe-AI is a desktop mascot for Haiku with AI chat powered by Claude.\n"
+		"Moe-AI is a desktop mascot for Haiku with AI chat powered by the system AI Server.\n"
 };
 
 resource file_types message {

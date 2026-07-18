@@ -71,9 +71,6 @@ private:
   BPath _MascotsPath(void);
 
   // AI tab
-  BTextControl* fApiKeyControl;
-  BMenuField*   fModelField;
-  BTextControl* fPippoUrlControl;
   BTextView*    fSystemPromptView;
 
   // Mascot tab
