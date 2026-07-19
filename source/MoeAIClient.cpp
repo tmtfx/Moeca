@@ -54,6 +54,9 @@ MoeAIClient::MoeAIClient(void)
 {
   _LoadSettings();
   fEngine = new AIEngine();
+  if (fEngine != NULL) {
+    fEngine->SetSystemPrompt(fSystemPrompt.String());
+  }
 }
 
 
@@ -101,6 +104,9 @@ void
 MoeAIClient::ReloadSettings(void)
 {
   _LoadSettings();
+  if (fEngine != NULL) {
+    fEngine->SetSystemPrompt(fSystemPrompt.String());
+  }
 }
 
 
@@ -205,6 +211,9 @@ MoeAIClient::MessageReceived(BMessage* msg)
       // ripulendo di fatto la cronologia locale della conversazione corrente.
       delete fEngine;
       fEngine = new AIEngine();
+      if (fEngine != NULL) {
+        fEngine->SetSystemPrompt(fSystemPrompt.String());
+      }
       break;
     }
 
