@@ -168,6 +168,7 @@ All settings are stored in `~/config/settings/Moe-AI/`.
 | **Yu-Ki** | Original mascot illustration | 2001 |
 | **Cafeina** | Haiku OS port | 2021 |
 | **atomozero** | AI chat, TTS, settings, bubble UI | 2026 |
+| **TmTFx** | Adoption of Pirati Del Frico AI infrastructure | 2026 |
 
 ---
 
