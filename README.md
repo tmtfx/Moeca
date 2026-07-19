@@ -1,10 +1,10 @@
-# Moe-AI
+# Moeca
 
-> *Your Haiku desktop mascot just got smarter.*
+> *Your Haiku desktop mascot just got smarter, in a carribean isle.*
 
-AI-powered desktop mascot for Haiku OS. Chat with Claude, control your system, hear responses spoken aloud.
+AI-powered desktop mascot for Haiku OS. Chat with the Pirati Del Frico's crab, let him control the system for you, hear responses spoken aloud. This and more with any configured AI set with the system wide AI preferences provided by Pirati Del Frico's version of Haiku.
 
-Fork of [Moe](https://github.com/HaikuArchives/Moe), a classic BeOS window sitter originally created by Okada Jun in 2001. Moe-AI extends it with AI chat, text-to-speech, and system control capabilities.
+Fork of [Moe-AI](https://github.com/atomozero/Moe-AI) wich is a fork of [Moe](https://github.com/HaikuArchives/Moe), a classic BeOS window sitter originally created by Okada Jun in 2001. Moeca extends Moe-AI interaction capabilities with any supported LLM (local or remote).
 
 ![Moe-AI Screenshot](documentation/img/sc1.png)
 
@@ -12,18 +12,18 @@ Fork of [Moe](https://github.com/HaikuArchives/Moe), a classic BeOS window sitte
 
 ## What is Moe-AI?
 
-Moe-AI is a cute mascot that lives on your active window. But unlike the original Moe, this one can **talk back**. Double-click the mascot and a speech bubble appears where you can chat with an AI assistant powered by Claude. Moe can answer questions, help with tasks, and even control your Haiku system.
+Moeca is a cute mascot that lives on your active window. But unlike the original Moe, this one can **talk back**. Double-click the mascot and a speech bubble appears where you can chat with an AI assistant powered by your AI (local or remote). Moeca can answer questions, help with tasks, and even control your Haiku system.
 
 ### Key Features
 
 | Feature | Description |
 |---------|-------------|
 | Speech Bubble Chat | Double-click the mascot to chat. Minimal, clean UI |
-| Claude AI | Sonnet 4, Opus 4, or Haiku 3.5 models |
-| System Control | Launch apps, manage files, query system info via [Pippo MCP](https://github.com/atomozero/pippo) |
+| Multiple AI | models and engines supported by Haiku's ai_server plugins |
+| System Control | Launch apps, manage files, query system info write code etc. |
 | Text-to-Speech | Piper neural voices (natural) or espeak (fast) |
 | Smart Positioning | Bubble positions itself around the mascot automatically |
-| Conversation Memory | History persists across sessions |
+| Conversation Memory | History is stored in the ai_server context sessions |
 | Context Awareness | Moe knows which app you're currently using |
 | Multiple Mascots | 5 included mascots, or use your own images |
 
@@ -43,21 +43,19 @@ make -j4
 ### 2. Run
 
 ```bash
-source/objects.x86_64-cc13-release/Moe-AI mascots/moe.png
+source/objects.x86_64-cc13-release/Moeca mascots/moe.png
 ```
 
 ### 3. Set up AI
 
-1. Get an API key from [console.anthropic.com](https://console.anthropic.com)
-2. Right-click mascot > **Settings** > **AI** tab
-3. Paste key, click **Save**
-4. **Double-click** the mascot to chat!
+1. Set up your LLM (local or remote) with the AI preflet
+2. Run Moeca and **Double-click** the mascot to chat!
 
 ---
 
 ## Text-to-Speech (optional)
 
-Moe can read responses aloud. Two engines are available:
+Moeca can read responses aloud. Two engines are available:
 
 | Engine | Quality | Speed | Install |
 |--------|---------|-------|---------|
