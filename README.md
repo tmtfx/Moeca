@@ -108,10 +108,6 @@ You can use any PNG image as a mascot. Transparent backgrounds work best.
 
 ### AI
 | Setting | Description | Default |
-|---------|-------------|---------|
-| API Key | Claude API key | *(none)* |
-| Model | Claude model to use | Sonnet 4 |
-| MCP URL | Pippo MCP server | `http://127.0.0.1:2607/mcp` |
 | System prompt | Moe's personality | Built-in prompt |
 
 ### Mascot
