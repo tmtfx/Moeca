@@ -231,7 +231,7 @@ MoeSettingsWindow::MoeSettingsWindow(void)
   aiTab->SetViewUIColor(B_PANEL_BACKGROUND_COLOR);
 
   BStringView* noteView = new BStringView("note_label",
-    B_TRANSLATE("Note: AI plugins, models and API keys are configured globally in System Preferences (AI panel)."));
+    B_TRANSLATE("Note: AI plugins, models and API keys are configured in AI Preflet."));
   noteView->SetExplicitMinSize(BSize(350, B_SIZE_UNSET));
 
   fSystemPromptView = new BTextView("system_prompt");

@@ -254,13 +254,14 @@ MoeApplication::ReadyToRun(void)
 void
 MoeApplication::AboutRequested(void)
 {
-  BAboutWindow* about = new BAboutWindow(B_TRANSLATE_SYSTEM_NAME("Moe-AI"),
+  BAboutWindow* about = new BAboutWindow(B_TRANSLATE_SYSTEM_NAME("Moeca"),
   	MOE_APP_SIGNATURE);
   const char* authors [] = {
   	B_TRANSLATE("Okada Jun (original programming)"),
   	B_TRANSLATE("Yu-Ki (illustration)"),
   	"Cafeina",
   	B_TRANSLATE("atomozero (AI chat integration)"),
+  	B_TRANSLATE("TmTFx (integration to Haiku AI subsystem"),
   	NULL
   };
   const char* extraCopyrights [] = {
@@ -279,8 +280,8 @@ MoeApplication::AboutRequested(void)
   about->AddSpecialThanks(thanks);
   about->AddExtraInfo(B_TRANSLATE("Moe - AI Desktop Mascot for Haiku"));
   about->AddDescription(B_TRANSLATE(
-  	"Moe is a desktop mascot that sits on your active window.\n"
-  	"Double-click to chat with Moe, powered by Haiku AI.\n"));
+  	"Moeca is a desktop mascot that sits on your active window.\n"
+  	"Double-click to chat with Moeca, powered by Haiku AI.\n"));
   about->Show();
 }
 
