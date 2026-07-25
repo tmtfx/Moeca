@@ -591,7 +591,7 @@ MoeBubbleWindow::SetResponse(const char* text)
 
   rgb_color moeColor = {0, 100, 60, 255};
   BString msg;
-  msg << "Moe: " << displayText << "\n";
+  msg << "Moeca: " << displayText << "\n";
   _AppendStyled(msg.String(), moeColor, false);
 
   // Speak the response
