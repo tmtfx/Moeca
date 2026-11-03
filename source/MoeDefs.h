@@ -92,6 +92,7 @@ enum
   MOE_QUERY_MASCOTS               = 'Mqms',
   MOE_MASCOT_ADD                  = 'Mmad',
   MOE_MASCOT_REMOVE               = 'Mmrm',
+  MOE_COMPOSITOR_CHANGED          = 'Mcch',
 };
 
 

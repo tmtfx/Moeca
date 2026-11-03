@@ -48,6 +48,7 @@
 #include "MoeProperty.h"
 #include "MoeAppUtils.h"
 #include "MoeActiveWindowWatcher.h"
+#include "MoeCompositorWatcher.h"
 #include "MoeBubbleWindow.h"
 #include "MoeAIClient.h"
 #include "MoeSettingsWindow.h"
@@ -246,6 +247,7 @@ MoeApplication::ReadyToRun(void)
   this->PostMessage(MOE_EXAMINE_QUIT_REQUESTED);
 
   MoeActiveWindowWatcher::Watcher()->Run();
+  MoeCompositorWatcher::Watcher()->Run();
 }
 
 #undef B_TRANSLATION_CONTEXT

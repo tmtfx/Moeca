@@ -34,6 +34,7 @@ APP_MIME_SIG = application/x-vnd.piratidelfrico.Moeca
 SRCS=	MoeForwardFilter.cpp \
 	MoeProperty.cpp \
 	MoeActiveWindowWatcher.cpp \
+	MoeCompositorWatcher.cpp \
 	MoeUtils.cpp \
 	MoeCompressionUtils.cpp \
 	MoeSurface.cpp \

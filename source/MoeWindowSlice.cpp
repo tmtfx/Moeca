@@ -34,6 +34,14 @@
 
 #define MOE_INVALIDATE 'Mivd'
 
+// Mirrors kWindowAlphaCompositingFlag from the "Pirati Del Frico" Haiku
+// fork's headers/private/interface/WindowPrivate.h. Defined locally
+// instead of included from there so Moeca keeps building against the
+// currently-installed system headers even before a rebuilt app_server
+// (which recognizes this bit) is installed. Must stay numerically in
+// sync with that header.
+static const uint32 kWindowAlphaCompositingFlag = 0x02000000;
+
 
 MoeWindowSlice::MoeWindowSlice(MoeWindow *owner,
 			       const char *name)
@@ -42,12 +50,18 @@ MoeWindowSlice::MoeWindowSlice(MoeWindow *owner,
 {
   this->SetViewColor(B_TRANSPARENT_32_BIT);
 
-  BWindow *aWindow = 
+  // kWindowAlphaCompositingFlag: opt into real per-pixel alpha
+  // compositing when the desktop's 2D compositor is active, so this
+  // (deliberately transparent) slice window's content is blended
+  // against what's underneath instead of treated as opaque. Harmless
+  // when the compositor is off -- it's simply never consulted then.
+  BWindow *aWindow =
     new BWindow(BRect(-10000, -10000, -10000, -10000),
 		name,
 		B_NO_BORDER_WINDOW_LOOK,
 		B_FLOATING_ALL_WINDOW_FEEL,
-		B_AVOID_FOCUS | B_WILL_ACCEPT_FIRST_CLICK);
+		B_AVOID_FOCUS | B_WILL_ACCEPT_FIRST_CLICK
+		  | kWindowAlphaCompositingFlag);
   aWindow->SetSizeLimits(0, 10000, 0, 10000);
   aWindow->AddChild(this);
   aWindow->Run();

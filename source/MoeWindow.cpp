@@ -24,6 +24,7 @@
 //
 
 
+#include <cstdio>
 #include <cstring>
 #include <algorithm>
 #include <String.h>
@@ -36,6 +37,7 @@
 #include "MoeSurface.h"
 #include "MoeAnime.h"
 #include "MoeWindowSlice.h"
+#include "MoeCompositorWatcher.h"
 #include "MoeWindow.h"
 
 
@@ -86,6 +88,8 @@ MoeWindow::MoeWindow(const char *name)
 
 MoeWindow::~MoeWindow(void)
 {
+  MoeCompositorWatcher::Watcher()->RemoveObserver(this);
+
   delete mBackground;
   delete mBitmap;
   delete mSurface;
@@ -154,11 +158,17 @@ MoeWindow::AttachSurface(MoeSurface *surface)
 
   mSurface = surface;
 
-  mBitmap = new BBitmap(mSurface->Bitmap()->Bounds(), B_RGB32, true);
+  // RGBA32 (not RGB32) so that when the desktop compositor is active,
+  // the real per-pixel alpha composed below survives all the way to
+  // the slice windows' own backing store (see ComposeBitmap).
+  mBitmap = new BBitmap(mSurface->Bitmap()->Bounds(), B_RGBA32, true);
   mOffscreenView = new BView(mSurface->Bounds(), "", 0, B_WILL_DRAW);
   mBitmap->Lock();
   mBitmap->AddChild(mOffscreenView);
   mBitmap->Unlock();
+
+  MoeCompositorWatcher::Watcher()->RemoveObserver(this);
+  MoeCompositorWatcher::Watcher()->AddObserver(this);
 
   this->AllocSlices();
 }
@@ -229,8 +239,39 @@ MoeWindow::ComposeBitmap(bool captureScreen)
   BRect bounds;
   int32 i;
 
+  if (MoeCompositorWatcher::Watcher()->IsCompositorEnabled())
+    {
+      if (captureScreen)
+	fprintf(stderr, "MoeWindow::ComposeBitmap: compositor path (%s)\n",
+		this->Name());
+
+      // The desktop's 2D compositor keeps a real per-window backing
+      // store and blends it live against whatever is underneath on
+      // every repaint, so there's no need to grab a screenshot or
+      // blend manually here: just copy sprite + animation overlay,
+      // alpha byte included, straight into mBitmap and let the
+      // compositor do the rest, always against a fresh background.
+      mBitmap->Lock();
+      mOffscreenView->SetDrawingMode(B_OP_COPY);
+      mOffscreenView->DrawBitmap(mSurface->Bitmap());
+
+      for (i = 1; i < this->CountHandlers(); i++)
+	{
+	  MoeAnime *anime = dynamic_cast<MoeAnime*>(this->HandlerAt(i));
+	  if (! anime)
+	    continue;
+	  anime->Draw(mOffscreenView);
+	}
+
+      mBitmap->Unlock();
+      return;
+    }
+
   if (captureScreen)
     {
+      fprintf(stderr, "MoeWindow::ComposeBitmap: classic path (%s)\n",
+	      this->Name());
+
       delete mBackground;
       mBackground = NULL;
 
@@ -410,6 +451,14 @@ MoeWindow::MessageReceived(BMessage *msg)
 	this->Invalidate(frame);
 	break;
       }
+
+    case MOE_COMPOSITOR_CHANGED:
+      if (! this->IsHidden())
+	{
+	  this->ComposeBitmap(true);
+	  this->Invalidate(this->Frame().OffsetToSelf(0, 0));
+	}
+      break;
     }
 }
 
