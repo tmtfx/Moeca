@@ -99,6 +99,9 @@ private:
 
   void ComposeBitmap(bool captureScreen = true);
 
+  void _CreateBitmap(void);
+  void _RebuildForCompositorChange(void);
+
   MoeSurface *mSurface;
   BBitmap *mBackground, *mBitmap;
   BView *mOffscreenView;

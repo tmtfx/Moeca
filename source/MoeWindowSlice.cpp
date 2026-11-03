@@ -28,6 +28,7 @@
 #include <Message.h>
 #include <MessageQueue.h>
 #include <Window.h>
+#include "MoeCompositorWatcher.h"
 #include "MoeWindow.h"
 #include "MoeWindowSlice.h"
 
@@ -50,18 +51,27 @@ MoeWindowSlice::MoeWindowSlice(MoeWindow *owner,
 {
   this->SetViewColor(B_TRANSPARENT_32_BIT);
 
+  uint32 windowFlags = B_AVOID_FOCUS | B_WILL_ACCEPT_FIRST_CLICK;
+
   // kWindowAlphaCompositingFlag: opt into real per-pixel alpha
   // compositing when the desktop's 2D compositor is active, so this
   // (deliberately transparent) slice window's content is blended
-  // against what's underneath instead of treated as opaque. Harmless
-  // when the compositor is off -- it's simply never consulted then.
+  // against what's underneath instead of treated as opaque. Only set
+  // when the compositor is actually on: MoeWindow's mBitmap is only
+  // B_RGBA32 (carrying real alpha) in that case too (see
+  // MoeWindow::_CreateBitmap), and the two must stay in sync -- a
+  // flagged window with an opaque B_RGB32 backing bitmap, or vice
+  // versa, is the classic/compositor mismatch that broke immediate
+  // mode.
+  if (MoeCompositorWatcher::Watcher()->IsCompositorEnabled())
+    windowFlags |= kWindowAlphaCompositingFlag;
+
   BWindow *aWindow =
     new BWindow(BRect(-10000, -10000, -10000, -10000),
 		name,
 		B_NO_BORDER_WINDOW_LOOK,
 		B_FLOATING_ALL_WINDOW_FEEL,
-		B_AVOID_FOCUS | B_WILL_ACCEPT_FIRST_CLICK
-		  | kWindowAlphaCompositingFlag);
+		windowFlags);
   aWindow->SetSizeLimits(0, 10000, 0, 10000);
   aWindow->AddChild(this);
   aWindow->Run();

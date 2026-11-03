@@ -151,6 +151,26 @@ MoeWindow::SetCellSize(int32 cellSize)
 
 
 void
+MoeWindow::_CreateBitmap(void)
+{
+  // RGBA32 only when the desktop compositor is actually active: that's
+  // the only path that needs the real per-pixel alpha composed in
+  // ComposeBitmap to survive all the way to the slice windows' own
+  // backing store. Classic/immediate mode keeps the original B_RGB32
+  // it always used, so it is provably unaffected by the compositor
+  // feature when the compositor is off.
+  color_space space = MoeCompositorWatcher::Watcher()->IsCompositorEnabled()
+    ? B_RGBA32 : B_RGB32;
+
+  mBitmap = new BBitmap(mSurface->Bitmap()->Bounds(), space, true);
+  mOffscreenView = new BView(mSurface->Bounds(), "", 0, B_WILL_DRAW);
+  mBitmap->Lock();
+  mBitmap->AddChild(mOffscreenView);
+  mBitmap->Unlock();
+}
+
+
+void
 MoeWindow::AttachSurface(MoeSurface *surface)
 {
   delete mBitmap;
@@ -158,19 +178,50 @@ MoeWindow::AttachSurface(MoeSurface *surface)
 
   mSurface = surface;
 
-  // RGBA32 (not RGB32) so that when the desktop compositor is active,
-  // the real per-pixel alpha composed below survives all the way to
-  // the slice windows' own backing store (see ComposeBitmap).
-  mBitmap = new BBitmap(mSurface->Bitmap()->Bounds(), B_RGBA32, true);
-  mOffscreenView = new BView(mSurface->Bounds(), "", 0, B_WILL_DRAW);
-  mBitmap->Lock();
-  mBitmap->AddChild(mOffscreenView);
-  mBitmap->Unlock();
+  this->_CreateBitmap();
 
   MoeCompositorWatcher::Watcher()->RemoveObserver(this);
   MoeCompositorWatcher::Watcher()->AddObserver(this);
 
   this->AllocSlices();
+}
+
+
+// The rendering engine (classic screenshot-blend vs. real compositor
+// alpha) is picked once, at resource-creation time, by the B_RGB32 vs.
+// B_RGBA32 choice in _CreateBitmap() and by the window-flag choice in
+// MoeWindowSlice's constructor -- ComposeBitmap()'s own branch on
+// IsCompositorEnabled() only matters if those resources already match.
+// Since BBitmap can't change color_space after creation and a BWindow
+// already on screen can't retroactively opt in/out of the compositor
+// the way MakeWindow() allocates its backing store, switching engines
+// at runtime means tearing down and recreating the bitmap and every
+// slice window from scratch.
+void
+MoeWindow::_RebuildForCompositorChange(void)
+{
+  bool wasShown = ! this->IsHidden();
+  int32 i;
+
+  for (i = 0; i < this->CountSlices(); i++)
+    {
+      this->SliceAt(i)->Looper()->Lock();
+      this->SliceAt(i)->Looper()->Quit();
+    }
+  mSlices.MakeEmpty();
+
+  delete mBitmap;
+  this->_CreateBitmap();
+
+  this->AllocSlices();
+  this->MoveTo(mPoint);
+
+  if (wasShown)
+    {
+      this->ComposeBitmap(true);
+      for (i = 0; i < this->CountSlices(); i++)
+	this->SliceAt(i)->Window()->Show();
+    }
 }
 
 
@@ -453,11 +504,7 @@ MoeWindow::MessageReceived(BMessage *msg)
       }
 
     case MOE_COMPOSITOR_CHANGED:
-      if (! this->IsHidden())
-	{
-	  this->ComposeBitmap(true);
-	  this->Invalidate(this->Frame().OffsetToSelf(0, 0));
-	}
+      this->_RebuildForCompositorChange();
       break;
     }
 }
